@@ -1,0 +1,7 @@
+[project]
+name = "paper-tool-scripts"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "arxiv2markdown==0.1.0",  # pin: arxiv2md 0.1.0 — article-level figures and span-based ltx_tabular tables are dropped; we work around both in arxiv_to_md.py
+]

@@ -1,0 +1,8 @@
+node_modules/
+.next/
+.venv/
+.arxiv2md_cache/
+.paper-tool-data/
+*.pyc
+.codeflicker/
+tsconfig.tsbuildinfo
