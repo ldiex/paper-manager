@@ -187,6 +187,24 @@ def extract_arxiv_id(raw: str) -> str:
     return match.group(1)
 
 
+def _extract_base_url(html: str, arxiv_id: str) -> str:
+    """Determine the correct base URL for resolving relative image paths.
+
+    Some arXiv HTML pages include <base href="/html/{id}vN/"> so that relative
+    image src like "x1.png" resolve correctly. Others omit <base> but already
+    include the version prefix in each src (e.g. "2606.27377v1/x1.png").
+
+    This function checks for a <base> tag and constructs the full base URL.
+    Falls back to "https://arxiv.org/html/" when no <base> tag is present.
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    base_tag = soup.find("base")
+    if base_tag and base_tag.get("href"):
+        href = base_tag["href"].strip()
+        return urljoin("https://arxiv.org", href)
+    return "https://arxiv.org/html/"
+
+
 def fix_table_captions(markdown: str, id_map: dict[str, str] | None = None) -> str:
     """Move table captions from bold line above table to figcaption below.
 
@@ -346,7 +364,7 @@ async def main():
         selected=["references", "bibliography"],
     )
 
-    base_url = "https://arxiv.org/html/"
+    base_url = _extract_base_url(html, arxiv_id)
     figure_id_map = build_figure_id_map(html)
 
     parts = []
