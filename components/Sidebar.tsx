@@ -40,6 +40,7 @@ export default function Sidebar({
   const [showInput, setShowInput] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const folderInputRef = useRef<HTMLInputElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,8 +63,32 @@ export default function Sidebar({
     setEditTitle("");
   };
 
+  const q = searchQuery.toLowerCase();
+  const filteredPapers = q
+    ? papers.filter(
+        (p) =>
+          p.id.toLowerCase().includes(q) ||
+          p.title.toLowerCase().includes(q) ||
+          (p.filename || "").toLowerCase().includes(q)
+      )
+    : papers;
+
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-gray-200 bg-white">
+      <div className="border-b border-gray-200 p-3">
+        <div className="relative">
+          <svg className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="搜索 id / 标题 / 文件名"
+            className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none transition focus:border-blue-400"
+          />
+        </div>
+      </div>
       <div className="border-b border-gray-200 p-3">
         {folderMode ? (
           <div className="space-y-2">
@@ -130,13 +155,13 @@ export default function Sidebar({
       </div>
 
       <nav className="flex-1 overflow-y-auto">
-        {papers.length === 0 ? (
+        {filteredPapers.length === 0 ? (
           <p className="px-4 py-8 text-center text-xs text-gray-400">
-            {folderMode ? "该文件夹中没有 .md 文件" : "还没有保存的论文"}
+            {searchQuery ? "没有匹配的论文" : folderMode ? "该文件夹中没有 .md 文件" : "还没有保存的论文"}
           </p>
         ) : (
           <ul className="py-1">
-            {papers.map((paper) => (
+            {filteredPapers.map((paper) => (
               <li key={paper.id}>
                 <div
                   onClick={() => onSelect(paper.id)}
